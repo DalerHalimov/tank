@@ -72,6 +72,25 @@
 <div class="map">
 </div>
 <script>
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "firebase/app";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAufld_gBQOCeqSOA_RIcQGxnD0f51kIBI",
+        authDomain: "tank-dfe2d.firebaseapp.com",
+        projectId: "tank-dfe2d",
+        storageBucket: "tank-dfe2d.firebasestorage.app",
+        messagingSenderId: "590016381036",
+        appId: "1:590016381036:web:73439ea4fda730b4145849"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+
     let id = ''
     const points = [];
     let mapSizeX = 13;
