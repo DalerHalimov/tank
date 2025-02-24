@@ -71,6 +71,27 @@
 </div>
 <div class="map">
 </div>
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    // import { initializeApp } from "firebase/app";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDORP4cvkKEC9PLokTIhFR-BahUnodJcbY",
+        authDomain: "tank-6847d.firebaseapp.com",
+        projectId: "tank-6847d",
+        storageBucket: "tank-6847d.firebasestorage.app",
+        messagingSenderId: "320134240197",
+        appId: "1:320134240197:web:e115db8268fbc3755b9dac"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+</script>
 <script>
     let id = ''
     const points = [];
