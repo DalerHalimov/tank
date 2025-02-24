@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tanks</title>
+    <style>
+        .user-holder {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px;
+        }
+
+        .add-tank.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .map {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .point {
+            box-shadow: 0 0 0 1px #f1f1f1;
+        }
+
+        .point.bullet {
+            background: #FF0000FF;
+        }
+
+        .point.active {
+            position: relative;
+            background: #435b2e;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 -34px 0 -15px #000;
+        }
+
+        .point.active:before, .point.active:after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: calc(100% + 10px);
+            left: -5px;
+            background: #435b2e;
+        }
+
+        .point.active:after {
+            left: auto;
+            right: -5px;
+        }
+
+        .point.active.right {
+            transform: rotate(90deg);
+        }
+
+        .point.active.left {
+            transform: rotate(-90deg);
+        }
+
+        .point.active.down {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+<div class="user-holder">
+    <input id="input" class="input-field" type="text" placeholder="Your Name">
+    <button class="add-tank" onclick="createTank(input.value)">Add</button>
+</div>
+<div class="map">
+</div>
+<script>
+    let id = ''
+    const points = [];
+    let mapSizeX = 13;
+    let mapSizeY = 13;
+    let pointSize = 50;
+    let bulletInterval;
+    const addButton = document.querySelector('.add-tank');
+
+    function createMap() {
+        const mapElement = document.querySelector('.map');
+        mapElement.style.width = `${mapSizeX * pointSize}px`;
+        for (let i = 0; i < mapSizeX * mapSizeY; i++) {
+            const pointElement = document.createElement('div');
+            pointElement.classList.add('point');
+            pointElement.style.width = `${pointSize}px`;
+            pointElement.style.height = `${pointSize}px`;
+            mapElement.appendChild(pointElement);
+        }
+    }
+
+    function renderMap() {
+        const pointsElements = document.querySelectorAll('.point');
+        pointsElements.forEach((point, i) => {
+            let dir = 'up';
+            let active = false;
+            let bullet = false;
+            points.forEach((tank) => {
+                if (tank.type === 'tank' && tank.p === i) {
+                    active = true;
+                    dir = tank.dir;
+                }
+                if (tank.type === 'bullet' && tank.p === i) {
+                    bullet = true;
+                    dir = tank.dir;
+                }
+            });
+            point.classList.remove('right', 'left', 'up', 'down');
+            point.classList.toggle(dir, active);
+            point.classList.toggle('active', active);
+            point.classList.toggle('bullet', bullet);
+        });
+    }
+
+    function createTank(name) {
+        id = name;
+        let pos = Math.floor(Math.random() * (mapSizeX * mapSizeY - 1 + 1)) + 1;
+        const tank = {p: pos, dir: 'up', type: 'tank', id: name};
+        points.push(tank);
+        addButton.classList.toggle('disabled');
+        renderMap();
+    }
+
+    function movePoint(pointsTypes) {
+        pointsTypes.forEach((point) => {
+            let confines;
+            if (point.dir === 'right') {
+                confines = (point.p + mapSizeX) - (point.p % mapSizeX) - 1;
+                if (point.type === 'bullet' && point.p === confines) {
+                    deleteBullet(point);
+                }
+                point.p = Math.min(point.p + 1, confines);
+            } else if (point.dir === 'left') {
+                confines = point.p - (point.p % mapSizeX);
+                if (point.type === 'bullet' && point.p === confines) {
+                    deleteBullet(point);
+                }
+                point.p = Math.max(point.p - 1, confines);
+            } else if (point.dir === 'up') {
+                confines = (point.p % mapSizeX);
+                if (point.type === 'bullet' && point.p === confines) {
+                    deleteBullet(point);
+                    clearInterval(bulletInterval);
+                }
+                point.p = Math.max(point.p - mapSizeX, confines);
+            } else if (point.dir === 'down') {
+                confines = (mapSizeX * mapSizeY) - (mapSizeX - (point.p % mapSizeX));
+                if (point.type === 'bullet' && point.p === confines) {
+                    deleteBullet(point);
+                }
+                point.p = Math.min(point.p + mapSizeX, confines);
+            }
+            handleBuilt(point);
+
+        });
+        renderMap();
+    }
+
+    function shoot() {
+        let point = points.find((point) => point.id === id);
+        const built = {p: point.p, dir: point.dir, type: 'bullet', interval: undefined};
+        points.push(built);
+        let bullets = points.filter((point) => point.type === 'bullet');
+        built.interval = setInterval(() => {
+            movePoint(bullets);
+        }, 100);
+    }
+
+    function handleBuilt(bullet) {
+        if (bullet.type === 'bullet') {
+            const index = points.findIndex((point) => point.id !== id && point.type === 'tank' && bullet.p === point.p);
+            if (index !== -1) {
+                points.splice(index, 1);
+                deleteBullet(bullet);
+                addButton.classList.toggle('disabled');
+            }
+        }
+    }
+
+    function deleteBullet(bullet) {
+        const index = points.findIndex(p => p === bullet);
+        if (index !== -1) {
+            points.splice(index, 1);
+        }
+        clearInterval(bullet.interval);
+    }
+
+    addEventListener('keydown', (evt) => {
+        let tank = points.filter((point) => point.id === id);
+        if (evt.keyCode === 39) {
+            tank[0].dir = 'right';
+            movePoint(tank);
+        }
+        if (evt.keyCode === 37) {
+            tank[0].dir = 'left';
+            movePoint(tank);
+        }
+        if (evt.keyCode === 38) {
+            tank[0].dir = 'up';
+            movePoint(tank);
+        }
+        if (evt.keyCode === 40) {
+            tank[0].dir = 'down';
+            movePoint(tank);
+        }
+        if (evt.keyCode === 32) {
+            shoot();
+        }
+    });
+
+    createMap();
+    renderMap();
+</script>
+</body>
+</html>
