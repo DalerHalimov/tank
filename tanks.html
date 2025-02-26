@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <title>Tanks</title>
     <style>
+        body{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
         .user-holder {
             display: flex;
             align-items: center;
@@ -67,39 +73,69 @@
 <body>
 <div class="user-holder">
     <input id="input" class="input-field" type="text" placeholder="Your Name">
-    <button class="add-tank" onclick="createTank(input.value)">Add</button>
+    <button class="add-tank">Add</button>
 </div>
 <div class="map">
 </div>
 <script type="module">
-    // Import the functions you need from the SDKs you need
-    // import { initializeApp } from "firebase/app";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
+    import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import {getDatabase, ref, get, set, onValue} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-    // Your web app's Firebase configuration
     const firebaseConfig = {
-        apiKey: "AIzaSyDORP4cvkKEC9PLokTIhFR-BahUnodJcbY",
-        authDomain: "tank-6847d.firebaseapp.com",
-        projectId: "tank-6847d",
-        storageBucket: "tank-6847d.firebasestorage.app",
-        messagingSenderId: "320134240197",
-        appId: "1:320134240197:web:e115db8268fbc3755b9dac"
+        apiKey: 'AIzaSyDORP4cvkKEC9PLokTIhFR-BahUnodJcbY',
+        authDomain: 'tank-6847d.firebaseapp.com',
+        databaseURL: 'https://tank-6847d-default-rtdb.asia-southeast1.firebasedatabase.app',
+        projectId: 'tank-6847d',
+        storageBucket: 'tank-6847d.firebasestorage.app',
+        messagingSenderId: '320134240197',
+        appId: '1:320134240197:web:e115db8268fbc3755b9dac'
     };
-
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-</script>
-<script>
-    let id = ''
-    const points = [];
+    const db = getDatabase(app);
+    const arrRef = ref(db, 'points');
+
+
+    document.querySelector('.add-tank').addEventListener('click', (evt) => {
+        createTank(evt.currentTarget.previousElementSibling.value)
+    });
+
+
+    let id = 'mark'
+    let points = [];
     let mapSizeX = 13;
     let mapSizeY = 13;
     let pointSize = 50;
-    let bulletInterval;
     const addButton = document.querySelector('.add-tank');
+
+    function getPoints() {
+        const listenForUpdates = () => {
+            onValue(arrRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    console.log('Обновленные данные:', data);
+                    points = data;
+                    renderMap();
+                } else {
+                    console.log('Данные не найдены');
+                }
+            }, (error) => {
+                console.error('Ошибка при получении обновлений:', error);
+            });
+        };
+        listenForUpdates();
+    }
+
+    function updatePoints() {
+        const updateData = async (newData) => {
+            try {
+                await set(arrRef, newData); // Обновляем данные на Firebase
+                console.log('Данные успешно обновлены');
+            } catch (error) {
+                console.error('Ошибка обновления данных:', error);
+            }
+        };
+        updateData(points);
+    }
 
     function createMap() {
         const mapElement = document.querySelector('.map');
@@ -164,7 +200,6 @@
                 confines = (point.p % mapSizeX);
                 if (point.type === 'bullet' && point.p === confines) {
                     deleteBullet(point);
-                    clearInterval(bulletInterval);
                 }
                 point.p = Math.max(point.p - mapSizeX, confines);
             } else if (point.dir === 'down') {
@@ -175,7 +210,6 @@
                 point.p = Math.min(point.p + mapSizeX, confines);
             }
             handleBuilt(point);
-
         });
         renderMap();
     }
@@ -233,7 +267,7 @@
     });
 
     createMap();
-    renderMap();
+    // getPoints();
 </script>
 </body>
 </html>
