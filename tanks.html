@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <title>Tanks</title>
     <style>
-        body{
+        body {
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
         }
+
         .user-holder {
             display: flex;
             align-items: center;
@@ -178,11 +179,13 @@
         const tank = {p: pos, dir: 'up', type: 'tank', id: name};
         points.push(tank);
         addButton.classList.toggle('disabled');
+        // updatePoints();
         renderMap();
     }
 
-    function movePoint(pointsTypes) {
-        pointsTypes.forEach((point) => {
+    function movePoint(points) {
+        const filteredPoints = Array.isArray(points) ? points : [points];
+        filteredPoints.forEach((point) => {
             let confines;
             if (point.dir === 'right') {
                 confines = (point.p + mapSizeX) - (point.p % mapSizeX) - 1;
@@ -212,16 +215,26 @@
             handleBuilt(point);
         });
         renderMap();
+        // updatePoints();
     }
 
     function shoot() {
         let point = points.find((point) => point.id === id);
-        const built = {p: point.p, dir: point.dir, type: 'bullet', interval: undefined};
+        const built = {p: point.p, dir: point.dir, type: 'bullet', interval: 0};
         points.push(built);
+        moveBullets();
+        // updatePoints();
+    }
+
+    function moveBullets() {
         let bullets = points.filter((point) => point.type === 'bullet');
-        built.interval = setInterval(() => {
-            movePoint(bullets);
-        }, 100);
+        bullets.forEach((bullet) => {
+            if (bullet.interval === 0) {
+                bullet.interval = setInterval(() => {
+                    movePoint(bullet);
+                }, 100);
+            }
+        });
     }
 
     function handleBuilt(bullet) {
