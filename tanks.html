@@ -257,21 +257,21 @@
     }
 
     addEventListener('keydown', (evt) => {
-        let tank = points.filter((point) => point.id === id);
+        let tank = points.find((point) => point.id === id);
         if (evt.keyCode === 39) {
-            tank[0].dir = 'right';
+            tank.dir = 'right';
             movePoint(tank);
         }
         if (evt.keyCode === 37) {
-            tank[0].dir = 'left';
+            tank.dir = 'left';
             movePoint(tank);
         }
         if (evt.keyCode === 38) {
-            tank[0].dir = 'up';
+            tank.dir = 'up';
             movePoint(tank);
         }
         if (evt.keyCode === 40) {
-            tank[0].dir = 'down';
+            tank.dir = 'down';
             movePoint(tank);
         }
         if (evt.keyCode === 32) {
