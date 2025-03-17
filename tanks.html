@@ -108,6 +108,10 @@
     let pointSize = 50;
     const addButton = document.querySelector('.add-tank');
 
+    function loadUser() {
+        id = localStorage.getItem('tank-id');
+    }
+
     function getPoints() {
         const listenForUpdates = () => {
             onValue(arrRef, (snapshot) => {
@@ -176,10 +180,10 @@
 
     function createTank(name) {
         id = name;
+        localStorage.setItem('tank-id', id);
         let pos = Math.floor(Math.random() * (mapSizeX * mapSizeY - 1 + 1)) + 1;
         const tank = {p: pos, dir: 'up', type: 'tank', id: name};
         points.push(tank);
-        addButton.classList.toggle('disabled');
         updatePoints();
     }
 
@@ -227,11 +231,9 @@
     function moveBullets() {
         let bullets = points.filter((point) => point.type === 'bullet');
         bullets.forEach((bullet) => {
-            if (bullet.interval === 0) {
-                bullet.interval = setInterval(() => {
-                    movePoint(bullet);
-                }, 100);
-            }
+            bullet.interval = setInterval(() => {
+                movePoint(bullet);
+            }, 100);
         });
     }
 
@@ -256,7 +258,7 @@
         clearInterval(bullet.interval);
     }
 
-    addEventListener('keydown', (evt) => {
+    addEventListener('keyup', (evt) => {
         let tank = points.find((point) => point.id === id);
         if (evt.keyCode === 39) {
             tank.dir = 'right';
@@ -279,9 +281,9 @@
             shoot();
         }
     });
-
     createMap();
     getPoints();
+    loadUser();
 </script>
 </body>
 </html>
