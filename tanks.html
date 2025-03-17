@@ -101,7 +101,7 @@
     });
 
 
-    let id = 'mark'
+    let id = ''
     let points = [];
     let mapSizeX = 13;
     let mapSizeY = 13;
@@ -116,6 +116,7 @@
                     console.log('Обновленные данные:', data);
                     points = data;
                     renderMap();
+                    moveBullets();
                 } else {
                     console.log('Данные не найдены');
                 }
@@ -179,8 +180,7 @@
         const tank = {p: pos, dir: 'up', type: 'tank', id: name};
         points.push(tank);
         addButton.classList.toggle('disabled');
-        // updatePoints();
-        renderMap();
+        updatePoints();
     }
 
     function movePoint(points) {
@@ -215,15 +215,13 @@
             handleBuilt(point);
         });
         renderMap();
-        // updatePoints();
     }
 
     function shoot() {
         let point = points.find((point) => point.id === id);
         const built = {p: point.p, dir: point.dir, type: 'bullet', interval: 0};
         points.push(built);
-        moveBullets();
-        // updatePoints();
+        updatePoints();
     }
 
     function moveBullets() {
@@ -243,6 +241,7 @@
             if (index !== -1) {
                 points.splice(index, 1);
                 deleteBullet(bullet);
+                updatePoints();
                 addButton.classList.toggle('disabled');
             }
         }
@@ -252,6 +251,7 @@
         const index = points.findIndex(p => p === bullet);
         if (index !== -1) {
             points.splice(index, 1);
+            updatePoints();
         }
         clearInterval(bullet.interval);
     }
@@ -274,13 +274,14 @@
             tank.dir = 'down';
             movePoint(tank);
         }
+        updatePoints();
         if (evt.keyCode === 32) {
             shoot();
         }
     });
 
     createMap();
-    // getPoints();
+    getPoints();
 </script>
 </body>
 </html>
