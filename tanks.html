@@ -101,18 +101,23 @@
     });
 
 
-    let id = ''
+    let user = 'mark'
     let points = [];
+    let offline = true;
     let mapSizeX = 13;
     let mapSizeY = 13;
     let pointSize = 50;
     const addButton = document.querySelector('.add-tank');
 
     function loadUser() {
-        id = localStorage.getItem('tank-id');
+        user = localStorage.getItem('tank-id');
     }
 
     function getPoints() {
+        if (offline) {
+            renderMap();
+            return;
+        }
         const listenForUpdates = () => {
             onValue(arrRef, (snapshot) => {
                 if (snapshot.exists()) {
@@ -132,6 +137,10 @@
     }
 
     function updatePoints() {
+        if (offline) {
+            renderMap();
+            return;
+        }
         const updateData = async (newData) => {
             try {
                 await set(arrRef, newData); // Обновляем данные на Firebase
@@ -178,11 +187,11 @@
         });
     }
 
-    function createTank(name) {
-        id = name;
-        localStorage.setItem('tank-id', id);
+    function createTank(name, bot = false) {
+        user = bot ? String(Date.now()) : name;
+        localStorage.setItem('tank-id', user);
         let pos = Math.floor(Math.random() * (mapSizeX * mapSizeY - 1 + 1)) + 1;
-        const tank = {p: pos, dir: 'up', type: 'tank', id: name};
+        const tank = {p: pos, dir: 'up', type: 'tank', id: user, bot: bot};
         points.push(tank);
         updatePoints();
     }
@@ -221,25 +230,31 @@
         renderMap();
     }
 
-    function shoot() {
+    function shoot(id = '') {
         let point = points.find((point) => point.id === id);
-        const built = {p: point.p, dir: point.dir, type: 'bullet', interval: 0};
+        const built = {p: point.p, dir: point.dir, type: 'bullet', interval: 0, id: point.id};
         points.push(built);
+        if (offline) {
+            moveBullets();
+            return;
+        }
         updatePoints();
     }
 
     function moveBullets() {
         let bullets = points.filter((point) => point.type === 'bullet');
         bullets.forEach((bullet) => {
+            if (bullet.interval === 0) {
             bullet.interval = setInterval(() => {
                 movePoint(bullet);
             }, 100);
+            }
         });
     }
 
     function handleBuilt(bullet) {
         if (bullet.type === 'bullet') {
-            const index = points.findIndex((point) => point.id !== id && point.type === 'tank' && bullet.p === point.p);
+            const index = points.findIndex((point) => point.id !== bullet.id && point.type === 'tank' && bullet.p === point.p);
             if (index !== -1) {
                 points.splice(index, 1);
                 deleteBullet(bullet);
@@ -258,8 +273,20 @@
         clearInterval(bullet.interval);
     }
 
+    function moveBots() {
+        createTank('', true);
+        let tanks = points.filter((point) => point.bot);
+        setInterval(() => {
+            tanks.forEach((tank) => {
+                tank.dir = ['right', 'left', 'up', 'down'][Math.floor(Math.random() * 4)];
+                movePoint(tank);
+                shoot(tank.id);
+            });
+        }, 1000);
+    }
+
     addEventListener('keyup', (evt) => {
-        let tank = points.find((point) => point.id === id);
+        let tank = points.find((point) => point.id === user);
         if (evt.keyCode === 39) {
             tank.dir = 'right';
             movePoint(tank);
@@ -278,12 +305,13 @@
         }
         updatePoints();
         if (evt.keyCode === 32) {
-            shoot();
+            shoot(tank.id);
         }
     });
     createMap();
     getPoints();
     loadUser();
+    moveBots();
 </script>
 </body>
 </html>

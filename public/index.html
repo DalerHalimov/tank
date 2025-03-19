@@ -80,7 +80,7 @@
 </div>
 <script type="module">
   import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import {getDatabase, ref, get, set, onValue} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+  import { getDatabase, ref, get, set, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
   const firebaseConfig = {
     apiKey: 'AIzaSyDORP4cvkKEC9PLokTIhFR-BahUnodJcbY',
@@ -134,7 +134,7 @@
   function updatePoints() {
     const updateData = async (newData) => {
       try {
-        await set(arrRef, newData); // Обновляем данные на Firebase
+        await update(arrRef, newData); // Обновляем данные на Firebase
         console.log('Данные успешно обновлены');
       } catch (error) {
         console.error('Ошибка обновления данных:', error);
@@ -185,6 +185,7 @@
     const tank = {p: pos, dir: 'up', type: 'tank', id: name};
     points.push(tank);
     updatePoints();
+    addButton.blur();
   }
 
   function movePoint(points) {
