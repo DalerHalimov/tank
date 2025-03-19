@@ -75,6 +75,7 @@
 <div class="user-holder">
     <input id="input" class="input-field" type="text" placeholder="Your Name">
     <button class="add-tank">Add</button>
+    <button class="add-bot">Add Bot</button>
 </div>
 <div class="map">
 </div>
@@ -99,6 +100,9 @@
     document.querySelector('.add-tank').addEventListener('click', (evt) => {
         createTank(evt.currentTarget.previousElementSibling.value)
     });
+    document.querySelector('.add-bot').addEventListener('click', () => {
+        moveBots();
+    });
 
 
     let user = 'mark'
@@ -107,7 +111,6 @@
     let mapSizeX = 13;
     let mapSizeY = 13;
     let pointSize = 50;
-    const addButton = document.querySelector('.add-tank');
 
     function loadUser() {
         user = localStorage.getItem('tank-id');
@@ -245,9 +248,9 @@
         let bullets = points.filter((point) => point.type === 'bullet');
         bullets.forEach((bullet) => {
             if (bullet.interval === 0) {
-            bullet.interval = setInterval(() => {
-                movePoint(bullet);
-            }, 100);
+                bullet.interval = setInterval(() => {
+                    movePoint(bullet);
+                }, 100);
             }
         });
     }
@@ -259,7 +262,6 @@
                 points.splice(index, 1);
                 deleteBullet(bullet);
                 updatePoints();
-                addButton.classList.toggle('disabled');
             }
         }
     }
