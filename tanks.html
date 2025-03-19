@@ -111,6 +111,7 @@
     let mapSizeX = 13;
     let mapSizeY = 13;
     let pointSize = 50;
+    let moveBotInterval = 0;
 
     function loadUser() {
         user = localStorage.getItem('tank-id');
@@ -278,7 +279,8 @@
     function moveBots() {
         createTank('', true);
         let tanks = points.filter((point) => point.bot);
-        setInterval(() => {
+        clearInterval(moveBotInterval);
+        moveBotInterval = setInterval(() => {
             tanks.forEach((tank) => {
                 tank.dir = ['right', 'left', 'up', 'down'][Math.floor(Math.random() * 4)];
                 movePoint(tank);
