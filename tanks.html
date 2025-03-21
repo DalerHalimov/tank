@@ -36,7 +36,7 @@
             background: #FF0000FF;
         }
 
-        .point.active {
+        .point.tank {
             position: relative;
             background: #435b2e;
             display: flex;
@@ -44,7 +44,7 @@
             box-shadow: 0 -34px 0 -15px #000;
         }
 
-        .point.active:before, .point.active:after {
+        .point.tank:before, .point.tank:after {
             content: '';
             position: absolute;
             width: 10px;
@@ -53,20 +53,20 @@
             background: #435b2e;
         }
 
-        .point.active:after {
+        .point.tank:after {
             left: auto;
             right: -5px;
         }
 
-        .point.active.right {
+        .point.tank.right {
             transform: rotate(90deg);
         }
 
-        .point.active.left {
+        .point.tank.left {
             transform: rotate(-90deg);
         }
 
-        .point.active.down {
+        .point.tank.down {
             transform: rotate(180deg);
         }
     </style>
@@ -172,21 +172,21 @@
         const pointsElements = document.querySelectorAll('.point');
         pointsElements.forEach((point, i) => {
             let dir = 'up';
-            let active = false;
+            let tank = false;
             let bullet = false;
-            points.forEach((tank) => {
-                if (tank.type === 'tank' && tank.p === i) {
-                    active = true;
-                    dir = tank.dir;
+            points.forEach((point) => {
+                if (point.type === 'tank' && point.p === i) {
+                    tank = true;
+                    dir = point.dir;
                 }
-                if (tank.type === 'bullet' && tank.p === i) {
+                if (point.type === 'bullet' && point.p === i) {
                     bullet = true;
-                    dir = tank.dir;
+                    dir = point.dir;
                 }
             });
             point.classList.remove('right', 'left', 'up', 'down');
-            point.classList.toggle(dir, active);
-            point.classList.toggle('active', active);
+            point.classList.toggle(dir, tank);
+            point.classList.toggle('tank', tank);
             point.classList.toggle('bullet', bullet);
         });
     }
