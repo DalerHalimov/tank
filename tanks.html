@@ -108,8 +108,8 @@
     let user = 'mark'
     let points = [];
     let offline = true;
-    let mapSizeX = 13;
-    let mapSizeY = 13;
+    let rows = 13;
+    let columns = 13;
     let pointSize = 50;
     let moveBotInterval = 0;
 
@@ -158,8 +158,8 @@
 
     function createMap() {
         const mapElement = document.querySelector('.map');
-        mapElement.style.width = `${mapSizeX * pointSize}px`;
-        for (let i = 0; i < mapSizeX * mapSizeY; i++) {
+        mapElement.style.width = `${rows * pointSize}px`;
+        for (let i = 0; i < rows * columns; i++) {
             const pointElement = document.createElement('div');
             pointElement.classList.add('point');
             pointElement.style.width = `${pointSize}px`;
@@ -194,7 +194,7 @@
     function createTank(name, bot = false) {
         user = bot ? String(Date.now()) : name;
         localStorage.setItem('tank-id', user);
-        let pos = Math.floor(Math.random() * (mapSizeX * mapSizeY - 1 + 1)) + 1;
+        let pos = Math.floor(Math.random() * (rows * columns - 1 + 1)) + 1;
         const tank = {p: pos, dir: 'up', type: 'tank', id: user, bot: bot};
         points.push(tank);
         updatePoints();
@@ -205,29 +205,29 @@
         filteredPoints.forEach((point) => {
             let confines;
             if (point.dir === 'right') {
-                confines = (point.p + mapSizeX) - (point.p % mapSizeX) - 1;
+                confines = (point.p + rows) - (point.p % rows) - 1;
                 if (point.type === 'bullet' && point.p === confines) {
                     deleteBullet(point);
                 }
                 point.p = Math.min(point.p + 1, confines);
             } else if (point.dir === 'left') {
-                confines = point.p - (point.p % mapSizeX);
+                confines = point.p - (point.p % rows);
                 if (point.type === 'bullet' && point.p === confines) {
                     deleteBullet(point);
                 }
                 point.p = Math.max(point.p - 1, confines);
             } else if (point.dir === 'up') {
-                confines = (point.p % mapSizeX);
+                confines = (point.p % rows);
                 if (point.type === 'bullet' && point.p === confines) {
                     deleteBullet(point);
                 }
-                point.p = Math.max(point.p - mapSizeX, confines);
+                point.p = Math.max(point.p - rows, confines);
             } else if (point.dir === 'down') {
-                confines = (mapSizeX * mapSizeY) - (mapSizeX - (point.p % mapSizeX));
+                confines = (rows * columns) - (rows - (point.p % rows));
                 if (point.type === 'bullet' && point.p === confines) {
                     deleteBullet(point);
                 }
-                point.p = Math.min(point.p + mapSizeX, confines);
+                point.p = Math.min(point.p + rows, confines);
             }
             handleBuilt(point);
         });
