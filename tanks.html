@@ -82,82 +82,17 @@
 </head>
 <body>
 <div class="user-holder">
-    <button class="add-tank primary">Add User</button>
-    <button class="add-bot primary">Add Bot</button>
+    <button class="add-tank primary" onclick="createTank()">Add User</button>
+    <button class="add-bot primary" onclick="addBot()">Add Bot</button>
 </div>
 <div class="map">
 </div>
-<script type="module">
-    import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import {getDatabase, ref, get, set, onValue} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-
-    const firebaseConfig = {
-        apiKey: 'AIzaSyDORP4cvkKEC9PLokTIhFR-BahUnodJcbY',
-        authDomain: 'tank-6847d.firebaseapp.com',
-        databaseURL: 'https://tank-6847d-default-rtdb.asia-southeast1.firebasedatabase.app',
-        projectId: 'tank-6847d',
-        storageBucket: 'tank-6847d.firebasestorage.app',
-        messagingSenderId: '320134240197',
-        appId: '1:320134240197:web:e115db8268fbc3755b9dac'
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const arrRef = ref(db, 'points');
-
-
-    document.querySelector('.add-tank').addEventListener('click', () => {
-        createTank()
-    });
-    document.querySelector('.add-bot').addEventListener('click', () => {
-        moveBots();
-    });
-
-
+<script>
     let user = 'mark'
     let points = [];
-    let offline = true;
     let rows = 10;
     let columns = 15;
     let pointSize = 50;
-
-    function getPoints() {
-        if (offline) {
-            renderMap();
-            return;
-        }
-        const listenForUpdates = () => {
-            onValue(arrRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    console.log('Обновленные данные:', data);
-                    points = data;
-                    renderMap();
-                    moveBullets();
-                } else {
-                    console.log('Данные не найдены');
-                }
-            }, (error) => {
-                console.error('Ошибка при получении обновлений:', error);
-            });
-        };
-        listenForUpdates();
-    }
-
-    function updatePoints() {
-        if (offline) {
-            renderMap();
-            return;
-        }
-        const updateData = async (newData) => {
-            try {
-                await set(arrRef, newData); // Обновляем данные на Firebase
-                console.log('Данные успешно обновлены');
-            } catch (error) {
-                console.error('Ошибка обновления данных:', error);
-            }
-        };
-        updateData(points);
-    }
 
     function createMap() {
         const mapElement = document.querySelector('.map');
@@ -202,7 +137,7 @@
         let pos = Math.floor(Math.random() * (rows * columns - 1 + 1)) + 1;
         const tank = {p: pos, dir: 'up', type: 'tank', id: bot ? String(Date.now()) : user, bot: bot, interval: 0};
         points.push(tank);
-        updatePoints();
+        renderMap();
     }
 
     function movePoint(points) {
@@ -243,11 +178,7 @@
         let point = points.find((point) => point.id === id);
         const built = {p: point.p, dir: point.dir, type: 'bullet', interval: 0, id: point.id};
         points.push(built);
-        if (offline) {
-            moveBullets();
-            return;
-        }
-        updatePoints();
+        moveBullets();
     }
 
     function moveBullets() {
@@ -267,7 +198,7 @@
             if (index !== -1) {
                 points.splice(index, 1);
                 deleteBullet(bullet);
-                updatePoints();
+                renderMap();
             }
         }
     }
@@ -276,12 +207,11 @@
         const index = points.findIndex(p => p === bullet);
         if (index !== -1) {
             points.splice(index, 1);
-            updatePoints();
         }
         clearInterval(bullet.interval);
     }
 
-    function moveBots() {
+    function addBot() {
         createTank(true);
         let tanks = points.filter((point) => point.bot);
         tanks.forEach((tank) => {
@@ -313,14 +243,13 @@
             tank.dir = 'down';
             movePoint(tank);
         }
-        updatePoints();
         if (evt.keyCode === 32) {
             shoot(tank.id);
         }
     });
     createMap();
-    getPoints();
-    moveBots();
+    renderMap();
+    addBot();
 </script>
 </body>
 </html>
