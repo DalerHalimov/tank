@@ -69,13 +69,21 @@
         .point.tank.down {
             transform: rotate(180deg);
         }
+
+        .primary {
+            background: #435b2e;
+            color: #fff;
+            border: none;
+            height: 35px;
+            padding: 0 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 <div class="user-holder">
-    <input id="input" class="input-field" type="text" placeholder="Your Name">
-    <button class="add-tank">Add</button>
-    <button class="add-bot">Add Bot</button>
+    <button class="add-tank primary">Add User</button>
+    <button class="add-bot primary">Add Bot</button>
 </div>
 <div class="map">
 </div>
@@ -97,8 +105,8 @@
     const arrRef = ref(db, 'points');
 
 
-    document.querySelector('.add-tank').addEventListener('click', (evt) => {
-        createTank(evt.currentTarget.previousElementSibling.value)
+    document.querySelector('.add-tank').addEventListener('click', () => {
+        createTank()
     });
     document.querySelector('.add-bot').addEventListener('click', () => {
         moveBots();
@@ -111,10 +119,6 @@
     let rows = 10;
     let columns = 15;
     let pointSize = 50;
-
-    function loadUser() {
-        user = localStorage.getItem('tank-id');
-    }
 
     function getPoints() {
         if (offline) {
@@ -190,13 +194,13 @@
         });
     }
 
-    function createTank(name, bot = false) {
+    function createTank(bot = false) {
         if (!bot) {
-            user = name;
+            user = String(Date.now());
             localStorage.setItem('tank-id', user);
         }
         let pos = Math.floor(Math.random() * (rows * columns - 1 + 1)) + 1;
-        const tank = {p: pos, dir: 'up', type: 'tank', id: bot ? String(Date.now()) : name, bot: bot, interval: 0};
+        const tank = {p: pos, dir: 'up', type: 'tank', id: bot ? String(Date.now()) : user, bot: bot, interval: 0};
         points.push(tank);
         updatePoints();
     }
@@ -278,7 +282,7 @@
     }
 
     function moveBots() {
-        createTank('', true);
+        createTank(true);
         let tanks = points.filter((point) => point.bot);
         tanks.forEach((tank) => {
             if (tank.interval === 0) {
@@ -316,7 +320,6 @@
     });
     createMap();
     getPoints();
-    loadUser();
     moveBots();
 </script>
 </body>
