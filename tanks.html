@@ -88,7 +88,7 @@
 <div class="map">
 </div>
 <script>
-    let user = 'mark'
+    let user = 0;
     let points = [];
     let rows = 10;
     let columns = 15;
@@ -107,25 +107,11 @@
     }
 
     function renderMap() {
-        const pointsElements = document.querySelectorAll('.point');
-        pointsElements.forEach((point, i) => {
-            let dir = 'up';
-            let tank = false;
-            let bullet = false;
-            points.forEach((point) => {
-                if (point.type === 'tank' && point.p === i) {
-                    tank = true;
-                    dir = point.dir;
-                }
-                if (point.type === 'bullet' && point.p === i) {
-                    bullet = true;
-                    // dir = point.dir;
-                }
-            });
-            point.classList.remove('right', 'left', 'up', 'down');
-            point.classList.toggle(dir, tank);
-            point.classList.toggle('tank', tank);
-            point.classList.toggle('bullet', bullet);
+        document.querySelectorAll('.point').forEach((point, i) => {
+            const item = points.find(p => p.p === i);
+            const tank = item?.type === 'tank';
+            const bullet = item?.type === 'bullet';
+            point.className = `point ${tank ? `tank ${item.dir}` : ''} ${bullet ? 'bullet' : ''}`.trim();
         });
     }
 
