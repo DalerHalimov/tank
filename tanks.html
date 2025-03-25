@@ -108,10 +108,9 @@
     let user = 'mark'
     let points = [];
     let offline = true;
-    let rows = 13;
-    let columns = 13;
+    let rows = 10;
+    let columns = 15;
     let pointSize = 50;
-    let moveBotInterval = 0;
 
     function loadUser() {
         user = localStorage.getItem('tank-id');
@@ -192,10 +191,12 @@
     }
 
     function createTank(name, bot = false) {
-        user = bot ? String(Date.now()) : name;
-        localStorage.setItem('tank-id', user);
+        if (!bot) {
+            user = name;
+            localStorage.setItem('tank-id', user);
+        }
         let pos = Math.floor(Math.random() * (rows * columns - 1 + 1)) + 1;
-        const tank = {p: pos, dir: 'up', type: 'tank', id: user, bot: bot};
+        const tank = {p: pos, dir: 'up', type: 'tank', id: bot ? String(Date.now()) : name, bot: bot, interval: 0};
         points.push(tank);
         updatePoints();
     }
@@ -279,14 +280,15 @@
     function moveBots() {
         createTank('', true);
         let tanks = points.filter((point) => point.bot);
-        clearInterval(moveBotInterval);
-        moveBotInterval = setInterval(() => {
-            tanks.forEach((tank) => {
-                tank.dir = ['right', 'left', 'up', 'down'][Math.floor(Math.random() * 4)];
-                movePoint(tank);
-                shoot(tank.id);
-            });
-        }, 1000);
+        tanks.forEach((tank) => {
+            if (tank.interval === 0) {
+                tank.interval = setInterval(() => {
+                    tank.dir = ['right', 'left', 'up', 'down'][Math.floor(Math.random() * 4)];
+                    movePoint(tank);
+                    shoot(tank.id);
+                }, 1000);
+            }
+        });
     }
 
     addEventListener('keyup', (evt) => {
