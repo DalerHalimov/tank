@@ -119,7 +119,7 @@
                 }
                 if (point.type === 'bullet' && point.p === i) {
                     bullet = true;
-                    dir = point.dir;
+                    // dir = point.dir;
                 }
             });
             point.classList.remove('right', 'left', 'up', 'down');
@@ -196,6 +196,7 @@
         if (bullet.type === 'bullet') {
             const index = points.findIndex((point) => point.id !== bullet.id && point.type === 'tank' && bullet.p === point.p);
             if (index !== -1) {
+                clearInterval(points[index].interval);
                 points.splice(index, 1);
                 deleteBullet(bullet);
                 renderMap();
