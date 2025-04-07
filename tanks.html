@@ -213,6 +213,7 @@
     }
 
     addEventListener('keyup', (evt) => {
+        evt.preventDefault();
         let tank = points.find((point) => point.id === user);
         if (evt.keyCode === 39) {
             tank.dir = 'right';
